@@ -5,7 +5,7 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 MAINTAINER Vedran Vucetic <vedran.vucetic@gmail.com>
 LABEL maintainer "vedran.vucetic@gmail.com"
 
-ENV NS_VERSION="v0.1-alpha.1" 
+ENV NS_VERSION="v0.1-alpha.2" 
 
 RUN Write-Host 'Downloading ServerMonitor'; \
 	Invoke-WebRequest -outfile C:\ServiceMonitor.exe "https://github.com/Microsoft/iis-docker/blob/master/windowsservercore/ServiceMonitor.exe?raw=true" -UseBasicParsing;
