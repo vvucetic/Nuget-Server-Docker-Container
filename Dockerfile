@@ -5,11 +5,12 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 MAINTAINER Vedran Vucetic <vedran.vucetic@gmail.com>
 LABEL maintainer "vedran.vucetic@gmail.com"
 
-ENV NS_VERSION="v0.1-alpha.2" 
-	API_KEY=""
+ENV NS_VERSION="v1.0" 
 
-RUN Write-Host 'Downloading ServerMonitor'; \
-	Invoke-WebRequest -outfile C:\ServiceMonitor.exe "https://github.com/Microsoft/iis-docker/blob/master/windowsservercore/ServiceMonitor.exe?raw=true" -UseBasicParsing;
+VOLUME C:\\packages
+
+RUN Write-Host 'Downloading startup.ps1'; \
+	Invoke-WebRequest -outfile C:\startup.ps1 "https://raw.githubusercontent.com/vvucetic/Nuget-Server-Docker-Container/master/startup.ps1" -UseBasicParsing;
 
 RUN Write-Host 'Downloading Nuget Server'; \
 	Invoke-WebRequest -outfile web.zip "https://github.com/vvucetic/Nuget-Server-Docker-Container/releases/download/$($env:NS_VERSION)/Web.zip" -UseBasicParsing; \
@@ -19,7 +20,7 @@ RUN Write-Host 'Downloading Nuget Server'; \
 	Remove-Item web.zip; \
 	Write-Host 'Creating IIS site'; \
 	Import-module IISAdministration; \
-	New-IISSite -Name "NugetServer" -PhysicalPath C:\NugetServer -BindingInformation "*:8080:"; \
+	New-IISSite -Name "NugetServer" -PhysicalPath C:\NugetServer -BindingInformation "*:8080:";  \
 	icacls C:\packages /grant 'IIS AppPool\DefaultAppPool:(OI)(CI)M';
 
 HEALTHCHECK CMD powershell -command   \
@@ -29,14 +30,6 @@ HEALTHCHECK CMD powershell -command   \
      else {return 1}; \
     } catch { return 1 }
 
-CMD Write-Host 'Configuring ApiKey'; \
-	$webConfig = 'C:\NugetServer\Configuration\AppSettings.config'; \
-	$doc = (Get-Content $webConfig) -as [Xml]; \
-	$obj = $doc.appSettings.add | where {$_.Key -eq 'apiKey'}; \	
-	$obj.value = $env:API_KEY; \
-	Write-Host 'API_KEY Configured: $($obj.value)'; \
-	$doc.Save($webConfig);
-	
 EXPOSE 8080
 	
-ENTRYPOINT ["C:\\ServiceMonitor.exe ", "w3svc"]
+ENTRYPOINT ./startup.ps1
