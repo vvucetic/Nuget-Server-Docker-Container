@@ -11,7 +11,7 @@ RUN Write-Host 'Downloading ServerMonitor'; \
 	Invoke-WebRequest -outfile C:\ServiceMonitor.exe "https://github.com/Microsoft/iis-docker/blob/master/windowsservercore/ServiceMonitor.exe?raw=true" -UseBasicParsing;
 
 RUN Write-Host 'Downloading Nuget Server'; \
-	Invoke-WebRequest -outfile web.zip "https://github.com/vvucetic/Nuget-Server-Docker-Container/releases/download/$($env:NS_VERSION).zip" -UseBasicParsing; \
+		Invoke-WebRequest -outfile web.zip "https://github.com/vvucetic/Nuget-Server-Docker-Container/releases/download/$($env:NS_VERSION)/Web.zip" -UseBasicParsing; \
 	Write-Host 'Extracting Nuget Server'; \
 	Expand-Archive web.zip -DestinationPath C:\NugetServer; \
 	Write-Host 'Removing zip'; \
@@ -20,6 +20,13 @@ RUN Write-Host 'Downloading Nuget Server'; \
 	Import-module IISAdministration; \
 	New-IISSite -Name "NugetServer" -PhysicalPath C:\NugetServer -BindingInformation "*:8080:";
 
+HEALTHCHECK CMD powershell -command   \
+    try { \
+     $response = iwr http://localhost:8080 -UseBasicParsing; \
+     if ($response.StatusCode -eq 200) { return 0} \
+     else {return 1}; \
+    } catch { return 1 }
+	
 EXPOSE 8080
 	
-ENTRYPOINT ["C:\ServiceMonitor.exe ", "w3svc"]
+ENTRYPOINT ["C:\\ServiceMonitor.exe ", "w3svc"]
