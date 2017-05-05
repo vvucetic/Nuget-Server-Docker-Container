@@ -19,7 +19,8 @@ RUN Write-Host 'Downloading Nuget Server'; \
 	Remove-Item web.zip; \
 	Write-Host 'Creating IIS site'; \
 	Import-module IISAdministration; \
-	New-IISSite -Name "NugetServer" -PhysicalPath C:\NugetServer -BindingInformation "*:8080:";
+	New-IISSite -Name "NugetServer" -PhysicalPath C:\NugetServer -BindingInformation "*:8080:"; \
+	icacls C:\packages /grant 'IIS AppPool\DefaultAppPool:(OI)(CI)M';
 
 HEALTHCHECK CMD powershell -command   \
     try { \
