@@ -1,3 +1,14 @@
+Write-Host 'Stop the default web site';
+Stop-IISSite -Name 'Default Web Site' -Confirm:$false
+
+$Port = 8080
+if (![string]::IsNullOrEmpty($env:NUGET_PORT)) { $Port = $env:NUGET_PORT }
+
+Write-Host 'Creating IIS site';
+Import-module IISAdministration;
+New-IISSite -Name "NugetServer" -PhysicalPath C:\NugetServer -BindingInformation "*:$Port:";
+icacls C:\packages /grant 'IIS AppPool\DefaultAppPool:(OI)(CI)M';
+
 Write-Host 'Configuring ApiKey';
 
 $value = "";

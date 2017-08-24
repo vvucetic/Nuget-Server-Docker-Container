@@ -17,19 +17,6 @@ RUN Write-Host 'Downloading Nuget Server'; \
 	Write-Host 'Extracting Nuget Server'; \
 	Expand-Archive web.zip -DestinationPath C:\NugetServer; \
 	Write-Host 'Removing zip'; \
-	Remove-Item web.zip; \
-	Write-Host 'Creating IIS site'; \
-	Import-module IISAdministration; \
-	New-IISSite -Name "NugetServer" -PhysicalPath C:\NugetServer -BindingInformation "*:8080:";  \
-	icacls C:\packages /grant 'IIS AppPool\DefaultAppPool:(OI)(CI)M';
-
-HEALTHCHECK CMD powershell -command   \
-    try { \
-     $response = iwr http://localhost:8080 -UseBasicParsing; \
-     if ($response.StatusCode -eq 200) { return 0} \
-     else {return 1}; \
-    } catch { return 1 }
-
-EXPOSE 8080
+	Remove-Item web.zip;
 	
 ENTRYPOINT ./startup.ps1
