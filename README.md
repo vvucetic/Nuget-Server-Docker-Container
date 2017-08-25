@@ -10,7 +10,11 @@ Example usage:
 ```PowerShell
 docker run --name NugetServer -d -p 8080:8080 -v C:/NugetServer/Packages:C:/packages -e API_KEY=**generate_your_key** vvucetic/nuget-server:latest 
 ```
-**Please note that you need to generate API KEY and provide in env variable like in example.**
+
+```PowerShell
+docker run --name NugetServer -d -p 80:80 -v C:/NugetServer/Packages:C:/packages -e NUGET_PORT=80 -e API_KEY=**generate_your_key** vvucetic/nuget-server:latest 
+```
+**Please note that you need to generate API KEY and provide in env variable like in example. And, make sure that NUGET_PORT has the same value as port mapped.**
 
 ## Inspect IP of container
 
